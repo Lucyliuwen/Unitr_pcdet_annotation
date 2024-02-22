@@ -42,7 +42,7 @@ class UniTR(nn.Module):
         self.d_model = d_model = self.model_cfg.d_model
         self.nhead = nhead = self.model_cfg.nhead
         self.stage_num = stage_num = 1  # only support plain bakbone
-        self.num_shifts = [2] * self.stage_num
+        self.num_shifts = [2] * self.stage_num #       [2]
         self.checkpoint_blocks = self.model_cfg.checkpoint_blocks
         self.image_pos_num, self.lidar_pos_num = set_info[0][-1], set_info[0][-1]
         self.accelerate = self.model_cfg.get('ACCELERATE', False)
@@ -196,7 +196,7 @@ class UniTR(nn.Module):
         logging.info(f"batch_dict BEFORE BACKBONE: {batch_dict.keys()}")
  
         # block forward
-        for stage_id in range(self.stage_num):
+        for stage_id in range(self.stage_num): # 1
             logging.info(f'===================== Stage{stage_id} ==============')
             block_layers = self.__getattr__(f'stage_{stage_id}')
             residual_norm_layers = self.__getattr__(f'residual_norm_stage_{stage_id}')
@@ -280,6 +280,19 @@ class UniTR(nn.Module):
         patch_pos_embed_list = [[[patch_info[f'pos_embed_stage{s}_block{b}_shift{i}']
                                   for i in range(self.num_shifts[s])] for b in range(self.image_pos_num)] for s in range(len(self.set_info))]
         
+        '''
+        set_voxel_inds_list = []
+        for s in range(len(self.set_info)): # 1层 set_info: [[90, 4]] => len(set_info) = 1
+            voxel_inds_stage = []
+            for i in range(self.num_shifts[s]): # 2 = [0, 1]
+                voxel_ind = voxel_info[f'set_voxel_inds_stage{s}_shift{i}']
+                voxel_inds_stage.append(voxel_ind)
+            set_voxel_inds_list.append(voxel_inds_stage)
+
+        也就是  set_voxel_inds_stage0_shift0 -- shape: torch.Size([2, 506, 90])
+                set_voxel_inds_stage0_shift1 -- shape: torch.Size([2, 514, 90])
+        '''
+
         # lidar branch
         voxel_info = self.lidar_input_layer(batch_dict)
         voxel_feat = batch_dict['voxel_features']
@@ -307,9 +320,8 @@ class UniTR(nn.Module):
         outer_length = len(multi_set_voxel_inds_list)
         # 使用 len() 函数和列表推导式获取内层列表的长度，并存储在一个列表中
         inner_lengths = [len(inner_list) for inner_list in multi_set_voxel_inds_list]
-
-        logging.info(f"外层列表长度: {outer_length}")
-        logging.info(f"内层列表长度: {inner_lengths}")
+        logging.info(f"out_lengths: {outer_length}")
+        logging.info(f"inner_lengths: {inner_lengths}")
         
         multi_pos_embed_list = []
         for s in range(len(self.set_info)):
@@ -691,7 +703,6 @@ class UniTRInputLayer(DSVTInputLayer):
 
         key_name = self.key_name
         coors = batch_dict[f'{key_name}_coords'].long()
-        
         logging.info(f"used coords: {coors.shape};--------batch{key_name}_coords")
 
         info = {}
