@@ -16,6 +16,7 @@ import datetime
 logging.basicConfig(filename='../output/unitr_backbone_%s.log' % datetime.datetime.now().strftime('%Y%m%d-%H%M%S'), level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 # logging.setLevel(logging.INFO)
 logging.info('This is an info message.')
+logging.info('This is an info message.')
 
 class UniTR(nn.Module):
     '''
