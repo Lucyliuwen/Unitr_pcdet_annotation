@@ -5,7 +5,7 @@ from torch_scatter import scatter_mean
 import logging
 import datetime
 
-logging.basicConfig(filename='../output/unitr_MAP2BEV_%s.log' % datetime.datetime.now().strftime('%Y%m%d-%H%M%S'), level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='../output/unitr_backbone_%s.log' % datetime.datetime.now().strftime('%Y%m%d-%H%M%S'), level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 # logging.setLevel(logging.INFO)
 logging.info('This is an info message.')
 class PointPillarScatter(nn.Module):
@@ -95,4 +95,12 @@ class PointPillarScatter3d(nn.Module):
         batch_spatial_features = torch.stack(batch_spatial_features, 0)
         batch_spatial_features = batch_spatial_features.view(batch_size, self.num_bev_features_before_compression * self.nz, self.ny, self.nx)
         batch_dict['spatial_features'] = batch_spatial_features
+
+        logging.info(f"Result of MAP_to_BEV: {batch_dict.keys()}")
+        for key in batch_dict:
+            try:
+                logging.info(f"key: {key} -- shape: {batch_dict[key].shape}")
+            except:
+                logging.info(f"key: {key} -- value: {batch_dict[key]}")
+                
         return batch_dict

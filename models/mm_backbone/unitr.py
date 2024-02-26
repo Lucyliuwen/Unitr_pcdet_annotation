@@ -169,6 +169,7 @@ class UniTR(nn.Module):
                 - voxel_coords (Tensor[int]):
                 - image_features (Tensor[float]):
         '''
+        logging.info("-------------- mm_backbone -------------")
         # lidar(3d) and image(2d) preprocess
         logging.info('*'*30+"Entering in the lidar(3d) and image(2d) preprocess part"+'*'*30)
         multi_feat, voxel_info, patch_info, multi_set_voxel_inds_list, multi_set_voxel_masks_list, multi_pos_embed_list = self._input_preprocess(
@@ -242,8 +243,13 @@ class UniTR(nn.Module):
         batch_dict['pillar_features'] = batch_dict['voxel_features'] = output[:voxel_num]
         batch_dict['voxel_coords'] = voxel_info[f'voxel_coors_stage{self.stage_num - 1}']
 
-        logging.info(f"batch_dict shape of :\tpillar_features: {batch_dict['pillar_features'].shape}; \t voxel_coords: {batch_dict['voxel_coords'].shape}\n")
-        logging.info(f"batch_dict AFTER BACKBONE: {batch_dict.keys()}")
+        logging.info(f"batch_dict shape of :\tpillar_features: {batch_dict['pillar_features'].shape}; \t voxel_coords: {batch_dict['voxel_coords'].shape}")
+        logging.info(f"Result of mm_BACKBONE: {batch_dict.keys()}")
+        for key in batch_dict:
+            try:
+                logging.info(f"key: {key} -- shape: {batch_dict[key].shape}")
+            except:
+                logging.info(f"key: {key} -- value: {batch_dict[key]}")
         return batch_dict
 
     def _input_preprocess(self, batch_dict):
@@ -316,12 +322,12 @@ class UniTR(nn.Module):
                                        for i in range(self.num_shifts[s])] for s in range(len(self.set_info))]
                 
         # logging.info(f'Shape of : voxel_feat: {voxel_feat.shape}; patch_feat: {patch_feat.shape}:\n\t multi-feat: {multi_feat.shape}')
-        # 使用 len() 函数获取外层列表的长度
-        outer_length = len(multi_set_voxel_inds_list)
-        # 使用 len() 函数和列表推导式获取内层列表的长度，并存储在一个列表中
-        inner_lengths = [len(inner_list) for inner_list in multi_set_voxel_inds_list]
-        logging.info(f"out_lengths: {outer_length}")
-        logging.info(f"inner_lengths: {inner_lengths}")
+        # # 使用 len() 函数获取外层列表的长度
+        # outer_length = len(multi_set_voxel_inds_list)
+        # # 使用 len() 函数和列表推导式获取内层列表的长度，并存储在一个列表中
+        # inner_lengths = [len(inner_list) for inner_list in multi_set_voxel_inds_list]
+        # logging.info(f"out_lengths: {outer_length}")
+        # logging.info(f"inner_lengths: {inner_lengths}")
         
         multi_pos_embed_list = []
         for s in range(len(self.set_info)):

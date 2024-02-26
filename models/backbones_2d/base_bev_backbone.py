@@ -1,7 +1,12 @@
 import numpy as np
 import torch
 import torch.nn as nn
+import logging
+import datetime
 
+logging.basicConfig(filename='../output/unitr_backbone_%s.log' % datetime.datetime.now().strftime('%Y%m%d-%H%M%S'), level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# logging.setLevel(logging.INFO)
+logging.info('This is an info message.')
 
 class BaseBEVBackbone(nn.Module):
     def __init__(self, model_cfg, input_channels):
@@ -329,6 +334,7 @@ class BaseBEVResBackbone(nn.Module):
                 spatial_features
         Returns:
         """
+        logging.info("--------------- Backbone_2D -------------------")
         spatial_features = data_dict['spatial_features']
         ups = []
         ret_dict = {}
@@ -352,5 +358,11 @@ class BaseBEVResBackbone(nn.Module):
             x = self.deblocks[-1](x)
 
         data_dict['spatial_features_2d'] = x
+        logging.info(f"Result of Backbone_2D: {data_dict.keys()}")
+        for key in data_dict:
+            try:
+                logging.info(f"key: {key} -- shape: {data_dict[key].shape}")
+            except:
+                logging.info(f"key: {key} -- value: {data_dict[key]}")
 
         return data_dict

@@ -12,6 +12,12 @@ from ...utils import loss_utils
 from ..model_utils import centernet_utils
 from ..model_utils import model_nms_utils
 
+import logging
+import datetime
+
+logging.basicConfig(filename='../output/unitr_backbone_%s.log' % datetime.datetime.now().strftime('%Y%m%d-%H%M%S'), level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# logging.setLevel(logging.INFO)
+logging.info('This is an info message.')
 
 class SeparateHead_Transfusion(nn.Module):
     def __init__(self, input_channels, head_channels, kernel_size, sep_head_dict, init_bias=-2.19, use_bias=False):
@@ -285,6 +291,7 @@ class TransFusionHead(nn.Module):
         return res_layer
 
     def forward(self, batch_dict):
+        logging.info("--------------- Dense_head ---------------")
         feats = batch_dict['spatial_features_2d']
 
         res = self.predict(feats)
@@ -298,6 +305,13 @@ class TransFusionHead(nn.Module):
             loss, tb_dict = self.loss(gt_bboxes_3d, gt_labels_3d, res)
             batch_dict['loss'] = loss
             batch_dict['tb_dict'] = tb_dict
+
+        logging.info(f"Result of Dense_head: {batch_dict}")
+        for key in batch_dict:
+            try:
+                logging.info(f"key: {key} -- shape: {batch_dict[key].shape}")
+            except:
+                logging.info(f"key: {key} -- value: {batch_dict[key]}")
         return batch_dict
 
     def get_targets(self, gt_bboxes_3d, gt_labels_3d, pred_dicts):

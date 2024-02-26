@@ -146,6 +146,13 @@ class DynamicPillarVFE(VFETemplate):
         batch_dict['voxel_features'] = batch_dict['pillar_features'] = features
         batch_dict['voxel_coords'] = voxel_coords
         logging.info(f"voxel_feature: {features.shape}\t voxel_coords: {voxel_coords.shape}\n")
+    
+        logging.info(f"Result of VFE: {batch_dict.keys()}")
+        for key in batch_dict:
+            try:
+                logging.info(f"key: {key} -- shape: {batch_dict[key].shape}")
+            except:
+                logging.info(f"key: {key} -- value: {batch_dict[key]}")
         return batch_dict
 
 
